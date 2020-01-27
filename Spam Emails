@@ -1,0 +1,285 @@
+//
+// Project 1 - Spam Filter Program 
+// Gurleen Kaur
+//
+
+#include <iostream>
+#include <fstream>
+#include <string>
+
+#include "ourvector.h"
+
+using namespace std;
+
+
+//
+// In this program I take the data from spamList and compare it with the 
+// emailsList to see which are spam and output the one's that are not spam
+// 
+// From the Project 1 guideline
+// 1. load a spam list,
+// 2. display the contents of a spam list,
+// 3. check a single email adress to see if it's spam
+// 4. filter an email list and output the resulting emails to a file
+// 
+
+
+// In this function I read the spamList file and insert the elements in ourvector
+// 
+// Two parameters are passed spamTxt which is the spam text that 
+// user wants to input iside the other parameter that is passed 
+// ourvector spamList is passed by reference which contains 
+// the contents from spam list text
+void load(string spamTxt, ourvector<string>&  spamList)
+{
+    string email;
+    ifstream inFS(spamTxt);
+    int counterSpam = 0;
+    
+    // if the file is not good then display error message and return
+    if (!inFS.good()) {
+        cout << "**Error, unable to open '" << spamTxt << "'" << endl << endl;
+        return;
+    }
+    
+    // process email
+    inFS >> email;
+    
+    spamList.clear();
+    
+    // while loop until it reaches the end of file
+    while (!inFS.eof()) {
+        // if file doesn't fail to open
+        if (!inFS.fail()) 
+        {
+            spamList.push_back(email);
+            inFS >> email;
+            counterSpam++;
+         }// if (!inFS.fail())
+    }// while (!inFS.eof())
+    
+    cout << "Loading '" << spamTxt << "'" << endl;
+    cout << "# of spam entries: " << counterSpam << endl;
+    cout << endl;
+    
+    inFS.close();
+}// void load(string...
+
+
+// Display function to display everything inside the vector
+// 
+// Only one parameter is passed which is ourvector 
+// spamList that contains everything inside the spamList text
+void display(ourvector<string> spamList)
+{
+    // for loop for looping through every element inside the spamList ourvector
+    for (string& e : spamList)
+    {
+        cout << e << endl;
+    }
+}// void display(ourvector...
+
+
+// splitEmail function to split the email to get username and domain
+// 
+// Four parameters are passed email which contains the whole email 
+// and username is passed by reference to get the username from email 
+// and domain is also passed by reference to get the domain from email
+// and find is the character that needed to be find in the email
+void splitEmail(string email, string& username, string& domain, string find)
+{
+    username = email.substr(0, email.find(find));
+    domain = email.substr(email.find(find)+1, email.size());
+    
+}// void splitEmail(...
+
+
+// checkAstrisk check if the domain of user email and spam email matches 
+// and then check is the username of spam email is * then return true
+// 
+// Two parameters are passed email which is the spam email 
+// and domain which is the domain of user email
+bool checkAstrisk(string email, string domain)
+{
+    string username1, domain1;
+    string find = ":";
+
+    splitEmail(email, domain1, username1, find);
+    
+    if (domain == domain1){
+        if (username1 == "*"){
+            return true;       // returns true if spam email username is *
+        }
+    }
+    return false;              // returns false by default
+}
+
+
+// bool check function to do the binary search to see if the email is 
+// inside the ourvector spamList if it is then return true if not then return false
+// 
+// two parameters are passed findEmail which is the email that is 
+// passed from user or from the emailsList and ourvector spamList 
+// is passed by reference which contains the spam emails
+bool check(string findEmail, ourvector<string>& spamList)
+{
+    string userName, domain;
+    string spamEmail, userEmail;
+    string find = "@";
+    int mid = 0;
+    int low = 0;
+    int high = spamList.size() - 1;
+    
+    // if loop to check if the user input the right email if not 
+    // then make the domain wrong so the binary search returns false
+    if (findEmail.find("@") < findEmail.size()-1)
+    {
+        splitEmail(findEmail, userName, domain, find);
+    }
+    else
+    {
+        findEmail = findEmail + "@wrong";
+        splitEmail(findEmail, userName, domain, find);
+    }
+    userEmail = domain + ":" + userName;
+    
+    // while loop to do the binary search that starts from the middle 
+    // and checks if the spamEmail is greater or lower then change the 
+    // high and low values and if spamEmail is equal to userEmail and 
+    // splitSpamEmail returns true then return true
+    while (high >= low) 
+    {      
+        mid = low + ((high - low) / 2);
+        spamEmail = spamList[mid];
+
+        if (spamEmail < userEmail)
+            low = mid + 1;
+        else if (spamEmail > userEmail)
+            high = mid - 1;
+        else if(spamEmail == userEmail || checkAstrisk(spamEmail, domain))
+            return true;                     // return true if the spamEmail and userEmail matches and checkAstrisk returns true
+    }
+    
+    // if userName is not * then do the binary search again but this 
+    // time user *@ + domain as userName or return false
+    if(userName != "*")
+        return check("*@" + domain, spamList);
+    else
+        return false;                        // return false by default
+}
+
+
+// filter function to filter through the emailsList to check which are spam 
+// which are not and then pass all the non-spam emails to output txt
+// 
+// Three parameters are passed emailsList which is the list that contains 
+// the emails that need to be filtered out and outputList is the txt where 
+// user wants to output and ourvector spamList that contains the spam emails
+void filter(string emailList, string outputList, ourvector<string>& spamList)
+{
+    string emails, subject, msgId, fullMail;
+    ifstream inFS(emailList);
+    int counterEmailProcessed = 0; 
+    int counterSpam = 0;
+    
+    ofstream outFS; // Output file stream
+    outFS.open(outputList);
+
+    // if emailList loop is not good then display error message and return
+    if (!inFS.good()) {
+        cout << "**Error, unable to open '" << emailList << "'" << endl << endl;
+        return;
+    }
+    
+    inFS >> msgId;  
+    
+    // while loop to loop until the end of the file is reached
+    while (!inFS.eof()) 
+    {
+        // if the emailList txt doesn't fail to open then get the input from emailList
+        if (!inFS.fail()) 
+        {
+            inFS >> emails;         
+            getline(inFS, subject); 
+            
+            counterEmailProcessed++;
+            
+            // if loop to call check function and if it returns false 
+            // then pass that email to output txt
+            if (!check(emails, spamList))
+            {
+                outFS << msgId << " " << emails << " " << subject << endl;
+                counterSpam++;
+            }// if (!check(...
+        }// if (!inFS.fail())...
+        inFS >> msgId;
+    }// while (!inFS.eof())
+    outFS.close();
+    inFS.close();
+    
+    cout << "# emails processed: " << counterEmailProcessed << endl;
+    cout << "# non-spam emails: " << counterSpam << endl << endl;
+}// void filter(...
+
+
+// main function for processing the user input and 
+// calling the appropriate function
+int main()
+{
+    ourvector<string> spamList;
+    string userInput, spamTxt;
+    string findEmail;
+    string emailList, outputList;
+    
+    cout << "** Welcome to spam filtering app **" << endl << endl;
+    
+    // while loop if userInput is not #
+    while (userInput != "#")
+    {
+        cout << "Enter command or # to exit> ";
+        cin >> userInput;
+        
+        // if userInput is load then call load function
+        if (userInput == "load")
+        {
+            cin >> spamTxt;
+            load(spamTxt, spamList);
+        }
+        
+        // if userInput is display then call display function
+        if (userInput == "display")
+        {
+            display(spamList);
+            cout << endl;
+        }
+        
+        // if userInput is check then call check function and if 
+        // it returns true then prompt it's spam else prompt it's not spam
+        if (userInput == "check")
+        {
+            cin >> findEmail;
+            if (check(findEmail, spamList))
+                cout << findEmail << " is spam" << endl;
+            else
+                cout << findEmail << " is not spam" << endl;
+            
+            cout << endl;
+        }
+        
+        // if userInput is filter then call filter function
+        if (userInput == "filter")
+        {
+            cin >> emailList;
+            cin >> outputList;
+            filter(emailList, outputList, spamList);
+        }
+        
+        // else prompt invalid command
+        if (userInput != "load" && userInput != "display" && userInput != "check" && userInput != "filter" && userInput != "#")
+        {
+            cout << "**invalid command" << endl << endl;
+        }// else
+    }// while (userInput
+    
+    return 0;
+}// int main()
