@@ -1,0 +1,55 @@
+//
+// Homework 1
+// CS 341 Spring 2021
+// << Gurleen Kaur >>
+//
+
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+int main()
+{
+	string fileName;
+	getline(cin, fileName);
+	char endline;
+
+	string line;
+
+	ifstream myfile(fileName);
+
+	string subLine;
+	string arrayLines[30];
+	int i = 0;
+
+	if (myfile.is_open()) {
+		
+	
+		while (getline(myfile, line)) {
+			subLine = line.substr(0, line.size());
+			arrayLines[i] = subLine;
+			i++;
+		}
+		myfile.close();
+	}
+	else {
+		cout << "Error! Unable to open file";
+	}
+
+	if (arrayLines[1] == "") {
+		cout << arrayLines[0];
+	}
+	else{
+		for (int x = 0; x <= i; x++) {
+			if (arrayLines[x + 1] == "") {
+				cout << arrayLines[x];
+			}
+			else {
+				cout << arrayLines[x] << endl;
+			}
+		}
+	}
+
+	return 0;
+}
