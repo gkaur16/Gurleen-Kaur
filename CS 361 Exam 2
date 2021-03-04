@@ -1,3 +1,4 @@
+8.1-8.2
 https://www.youtube.com/watch?v=UTyahZ92Wv8
 3:54 Process is a running instance of a program. Process consists of fundamentally is a
 memory layout and collection of values stored in registers. What is it's memory and what is its
@@ -80,7 +81,32 @@ to happened. It will voluntarily seed the code and let the other process to happ
 know and work cooperatively Never get interrupted in middle of something.
 Running from process 1 to process 2 is called context switching on stack frame from process 1
 to another stack frame. Switching text to data.
+
+8.3-8.4
 https://www.youtube.com/watch?v=uRYyj8tcDTE
-Processes have their own memory layout and execution context. Execution context is history of
+Processes have their own memory layout and execution context state, registers. Execution context is history of
 what it’s doing in stack. Process is everything thread control and its memory layout and its
-operating system configuration.
+operating system configuration. Fork is a way to create new processes. 
+
+2:28 Modern Linux Operating system schedule their threads of control preemptively that means kernel sets a timer before user level thread schedules. Then kernel tells the CPU to wake it up after 10000 cycles if this process hasnt woken it up yet then user level takes over completely and calls OS if it wants to by calling syscall or it will keep going until the timer fires the kernel will take over and then it will decide which thread to run. Thread of control will be context execuction context which is different from system level threads. 
+
+4:52 char *args[4] = ("bin/echo/", "hello", "world", 0); execv(args[0], args); perror("execv failed") bin/echo/ hello world -> hello world make ./execv -> hello world 
+we have a null pointer in args we don't need to say c already knows.execv is most basic version of syscalls which allows to run other programs. doesn't create a new process just change it from one to another
+
+7:02 strace ./execv there is two calls to execv the first call start the program itself in second call it calls operating system where it says that i want ot replace my running process with bin echo process. execv doesn't return unless something wrong happens. if i go from one process to another I will not return back as i've wiped clean everything that exists. Perror checks for return from previous function and if something goes wrong perror shows up. strace is a debugging program that tells you all of the system calls a program makes. System calls are requests a program makes to the operating system. ltrace is much the same as strace, except that it prints out calls to shared libraries, rather than system calls.
+
+11:15 include errno.h where is display the line where error occured. p error tells you what happened it will read out humand readable description. Execv will pass in a name of an executable as well as a list of arguments this is most basic version of execv. It will inherit whatever parent process was using to remember enviroment variable name and value are helpful to keep track of environ. we can use execv to specify the environ they are made to replace the entire running execution context and memory layout of a running process. with a new execcution context and memory layout. 
+
+15:32 A spawn based shell is nearly identical to a fork based shell, however spawn only returns once, and it returns success or failure, rather than returning the process id. You will have to create a variable to store the process id, and pass it by reference to the posix_spawn or posix_spawnp function.
+int posix_spawn(pid_t *restrict pid, const char *restrict path, const posix_spawn_file_actions_t *file_actions, const posix_spawnattr_t *restrict attrp, char *const argv[restrict], char *const envp[restrict]); The first argument is the brand new process id that's been created then next one is the actual file name that is going to be executed.The fifth is entire list of arguments this is very similar to the call of execv and blocked until one of the processes gets terminated. strace will talk about the process that we are doing not the one that is besides
+
+19:56 if we want to strace both our prcoess and child process we need to do a strace.  24:17 weight
+
+25:07 fork we're just creating spawning the new process. create new process and fill it out from beginning with other program rather than traditional unix way to do it
+It will make a brand new execution context and memory and other things that will be inherit like which files are open. Wait in my parent process for child to die. Weight just goes to sleep
+
+26:00 fork is called once and it returns twice. Fork creates two identical copiesof running program. They share the same execution context the same memory layout and same open files and signal handler. We have entire execution, memory copied. Copy on write where we don't actually have to take the one and make a new one. OS and linux use pointers rather than copying they just create a another pointer that points at the same thing. Allows you to point two things at same memory bank but then as one of them changes they have their own identical copies with little bits that were changed it saves space and make things faster. In fork it's running in parent process and in child process. The two copies start to diverge immediately when fork returns. If the return is less than 0 then its an error. First the parent and child will both run but after that based on result it will decide what to run. Once the two running processes are created OS decides which one to schedule next parent or the child. Usually the parent runs first because it runs the first one which is not definite. The fork is bad in a sense that it is complicated and you're running your own code. Clearing every memory stack and making people do that is dumb. both posix spawn and fork and implemented using syscall. V-fork make the common case fast we make a copy and then we change it to completely different wipe it out and turn it in new environment of its own. 
+
+43:01 Profiling which is to say yes i can write my test code here and it will show how it works and we can s trace through it. S trace is the very basic profiling of how time our process doinh different system calls. Fork only tracing in the parent not in the child. It takes 3 times long to do with fork than it takes to do with spawn. Spawn tell to not make a new memory layout just share the same layout as parent to copy and write copy. It just goes to sleep and then other processes run it without changing the memory
+
+56:19 in fork each of these prcoesses the parent and child have their own initially identical copy of memory that parent had at the moment the fork was called. The return value for child in fork will be 0 and non 0 for based on the child-process id in parent copy of their own file descripto, own signal handler
