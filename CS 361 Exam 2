@@ -1,0 +1,86 @@
+https://www.youtube.com/watch?v=UTyahZ92Wv8
+3:54 Process is a running instance of a program. Process consists of fundamentally is a
+memory layout and collection of values stored in registers. What is it's memory and what is its
+registers. Additional information operating system will keep track of but from perspective of
+running process that's what it sees as entire world. Process have both user level memory and
+kernel level memory part of running process. Collection of text and memory addresses and rules
+for how to use registers and cpu to run instruction
+4:41 Kernel is a collection of exception handlers and privileged code that will always be running
+on behalf of individual process even though it's a special process like init process which is a
+process that operating system starts at boot up. is always running in context of a given running
+user level process
+5:58 Exception it allows to accept network packets create new processes, kill other processes,
+duplicate processes, bring information from disk, deal with instruction debug our program things
+that use full capabilities of computer rather than abstraction of memory address and registers
+Two types of movements which instruction is executed next or jumping to another location
+memory
+7:59 to affect the outside world we need system state. Affecting the outside world will be
+happening using the operating system as part of kernel When we talk about operating system
+we are also talking about all the other stuff that os is doing in other user level processes. most
+common is init process which is most common and parent to all the every single process that
+runs in machine which gets launched when you boot up it doesn't anything itself it lets the other
+user level process to do the useful things
+10:50 We are going from user level process to writing kernel code with extra privileges in os
+level. Root is not in kernel it is user level privilege. Root is elevated privileged user level process
+determined by OS where kernel is elevated privileged define by process.
+Kernel is collection of code run via exception handlers it had the ability to work closely with
+hardware. Processor is in control of user level or kernel mode Running in user or kernel mode
+not together. Exception control flow is when kernel sets a timer and tells the CPU to stop user
+level and give control back to kernel Kernel will always run on behalf of user level process we
+can restrict the capability of user level process using CPU
+16:50 Kernel is a collection of interrupt vectors that cpu knows how to invoke based on what
+exception happen. Cpu transfers controls based on what instruction of the kernel is listed in
+interrupt vector
+
+https://www.youtube.com/watch?v=IdORic22vtQ
+The process that we go through from running unprivileged code to supervisor code is called an
+exception. We move from individual instruction through the exception handler into the kernel its
+similar to a procedure call we are saving a state and moving over to another location but its very
+different as we can start from one and may not come back
+2:44 Asynchronous exception called Interrupt means not with the instruction that is running on
+cpu at this time. Comes in from outside packet coming to a network, Ctrl+C, reset. Are normal
+computing behaviour when packets are coming in OS needs to handle it. Interrupt don;t cause
+currently running process to terminate they just get it handled by OS and currently running
+process in put back on and continue what it was doing. According to user level nothing
+happened
+5:39 Intentional synchronous exceptions also called syscalls called Traps. Syscall is store
+correct information in correct register on a stack to run a specific privileged instruction that only
+OS is allowed to do. User level goes to sleep then OS does stuff in supervisor mode and
+transfer control to user level.
+8:27 Synchronous unintentional exceptions that are not caused by us. Faults which are
+potentially recoverable whereas Aborts are not recoverable. Fault causes bad things to happen
+that can be potentially fixed. Kernel is incharge of this and it will allow to go to next instruction.
+Loading that piece of file in disk and rerun that instruction. Sometimes it will run and sometimes
+it will not return back to user level. Kernel looks for ever when the instruction is terminated it
+looks for the error
+12:37 Abort is unrecoverable fault the program will get terminated and its due to fatal hardware
+errors when cpu is sure that this program will never start again. Cpu just decided that something
+is wrong and it’s no fault of code it fault of hardware issue. Abort is caused by hardware failure
+and it is unrecoverable no matter what whereas some faults are recoverable
+https://www.youtube.com/watch?v=WkuKhLYtUHw
+Every individual have its own view of the world simplifies not have to cooperate with other
+processes. Kernel along with cpu are multiplexing access to the resources of the computer to
+work more efficiently. Process consists of memory layout and registers. Each process has
+state what’s in memory and in register. Each process can be in 3 states running where it’s
+actively on cpu ready able to run as soon as given access to cpu blocked unable to run
+instruction at this moment.
+
+6:24 Preemptive multiprocessing is used in basically every OS. posits that every program thinks
+that they have full control of the cpu and full control of memory address layout it’s incorrect but
+not the reality of the situation by exposing reality to the process it makes process job easier.
+Your process thinks that it had full control and does not need to coordinate with other process
+which is not true OS will work with CPU to yank and allow other things to happen. Getting infront
+of it and running before it runs. Makes things simple but need to find way to effectively freeze
+something that isn't even aware this is happening and resume it without having any incorrect
+operation. Our code does whatever needs to happen. Preemptive kernel sets a timer to cpu to
+wake it up if user doesn’t wake kernel up so user level takes over and keep running then kernel
+decides what thread to run
+Cooperative multitasking is where every individual process knows about other tasks that needs
+to happened. It will voluntarily seed the code and let the other process to happen. It need to
+know and work cooperatively Never get interrupted in middle of something.
+Running from process 1 to process 2 is called context switching on stack frame from process 1
+to another stack frame. Switching text to data.
+https://www.youtube.com/watch?v=uRYyj8tcDTE
+Processes have their own memory layout and execution context. Execution context is history of
+what it’s doing in stack. Process is everything thread control and its memory layout and its
+operating system configuration.
