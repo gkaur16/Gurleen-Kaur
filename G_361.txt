@@ -1,0 +1,38 @@
+void * is_pointer(void * ptr) {
+ 
+ void * ptr_temp = mem_heap_lo(); 
+
+  if(ptr_temp == NULL)
+	return;  
+  
+  if(ptr_temp <= ptr && ptr <= mem_heap_hi()){
+     
+      while (chunk_size(ptr_temp)) {      
+      
+      if (in_use(ptr_temp) && ptr < ptr_temp + chunk_size(ptr_temp)) {        
+         return ptr_temp;
+      }    
+        ptr_temp = next_chunk(ptr_temp);
+    } 
+  }  
+}
+
+void walk_region_and_mark(void* start, void* end) {
+
+ void * s_temp = start;
+ void * e_temp = end;
+ while (s_temp < e_temp) {
+      
+        void *cur = is_pointer((void*)*(size_t*)s_temp);
+      
+        if(cur == NULL) {
+            start = start + 8;
+            continue;
+        }        
+        if(!is_marked(cur)) {          
+            mark(cur);
+            walk_region_and_mark(cur + 4, cur + chunk_size(cur));
+        }
+       s_temp = s_temp + 8;
+    }
+}
